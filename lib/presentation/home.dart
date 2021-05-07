@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/domain/model/day.dart';
+import 'package:flutter_architecture/domain/state/home_state.dart';
+import 'package:flutter_architecture/internal/dependencies/home_module.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -6,8 +9,89 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final _latController = TextEditingController();
+  final _lngController = TextEditingController();
+
+  Day _day;
+
+  HomeState _homeState;
+
+  @override
+  void initState() {
+    super.initState();
+    _homeState = HomeModule.homeState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return GestureDetector(
+      onTap: FocusScope.of(context).unfocus,
+      child: Scaffold(
+        body: _getBody(),
+      ),
+    );
+  }
+
+  Widget _getBody() {
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _getRowInput(),
+            SizedBox(height: 20),
+            RaisedButton(
+              child: Text('Получить'),
+              onPressed: _getDay,
+            ),
+            SizedBox(height: 20),
+            if (_day != null) _getDayInfo(_day),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _getRowInput() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _latController,
+            keyboardType:
+                TextInputType.numberWithOptions(decimal: true, signed: true),
+            decoration: InputDecoration(hintText: 'Широта'),
+          ),
+        ),
+        SizedBox(width: 20),
+        Expanded(
+          child: TextField(
+            controller: _lngController,
+            keyboardType:
+                TextInputType.numberWithOptions(decimal: true, signed: true),
+            decoration: InputDecoration(hintText: 'Долгота'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _getDayInfo(Day day) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Восход: ${day.sunrise.toLocal()}'),
+        Text('Заход: ${day.sunset.toLocal()}'),
+        Text('Полдень: ${day.solarNoon.toLocal()}'),
+        Text('Продолжительность: ${Duration(seconds: day.dayLength)}'),
+      ],
+    );
+  }
+
+  void _getDay() {
+    final lat = double.tryParse(_latController.text);
+    final lng = double.tryParse(_lngController.text);
+    _homeState.getDay(latitude: lat, longitude: lng);
   }
 }

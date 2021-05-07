@@ -1,4 +1,4 @@
-import 'package:flutter_architecture/data/api/api_day.dart';
+import 'package:flutter_architecture/data/api/model/api_day.dart';
 import 'package:flutter_architecture/domain/model/day.dart';
 
 class DayMapper {
